@@ -3,17 +3,25 @@ package kz.odik.crm.Service;
 import kz.odik.crm.DTO.StoreInventoryDTO;
 import kz.odik.crm.Repository.*;
 import kz.odik.crm.entity.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class StoreInventoryService {
+
+    @Autowired
     private ProductOutflowRepository productOutflowRepository;
+    @Autowired
     private ProductInflowRepository productInflowRepository;
+    @Autowired
     private ProductsRepository productRepository;
+    @Autowired
     private StoreInventoryRepository storeInventoryRepository;
+    @Autowired
     private StoreRepository storeRepository;
+    @Autowired
     private UsersRepository usersRepository;
 
     public List<Products> findProductsByName(String name) {
@@ -40,6 +48,7 @@ public class StoreInventoryService {
     }
 
     public StoreInventory createProductOutflow(Long userId, StoreInventoryDTO dto) {
+        System.out.println("AUTHORIZATION PASSED");
         Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found:" + userId));
 
         StoreInventory storeInventory = storeInventoryRepository.findById(dto.getStore_id())

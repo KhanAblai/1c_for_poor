@@ -1,5 +1,6 @@
 package kz.odik.crm.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,5 +26,6 @@ public class AccessRights {
     private String name;
     private String description;
     @ManyToMany(mappedBy = "accessRights")
+    @JsonIgnoreProperties("accessRights")
     private Set<Roles> roles = new HashSet<>();
 }

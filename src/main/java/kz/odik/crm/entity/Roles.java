@@ -1,5 +1,6 @@
 package kz.odik.crm.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,8 +25,10 @@ public class Roles {
     @NotBlank
     private String name;
     @ManyToMany
-    @JoinTable(name = "role_access_rights", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "access_right_id"))
+    @JoinTable(name = "role_access_rights",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "access_right_id"))
+    @JsonIgnoreProperties("roles")
     private Set<AccessRights> accessRights = new HashSet<>();
-    @ManyToMany(mappedBy = "role")
-    private Set<Users> users = new HashSet<>();
+
 }

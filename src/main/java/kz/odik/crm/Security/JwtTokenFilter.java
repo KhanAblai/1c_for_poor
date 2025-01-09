@@ -29,20 +29,26 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request);
+        System.out.println("1" + token);
         if (token != null && jwtTokenProvider.validateToken(token)) {
+            System.out.println("2");
             try {
                 String username = jwtTokenProvider.getUsernameFromToken(token);
+                System.out.println("3" + username);
                 List<String> roles = jwtTokenProvider.getRolesFromToken(token);
-
+                System.out.println("4" + roles);
+                System.out.println("User authorities from token: " + roles);
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(username, null, getAuthorities(roles));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             } catch (JwtException e) {
+                System.out.println(e);
                 SecurityContextHolder.clearContext();
             }
         }
         filterChain.doFilter(request, response);
     }
+
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -57,6 +63,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         for (String role : roles) {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
         }
+        System.out.println("Autho: " + authorities);
         return authorities;
     }
 }

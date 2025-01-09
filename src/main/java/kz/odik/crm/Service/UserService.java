@@ -6,7 +6,6 @@ import kz.odik.crm.Repository.RolesRepository;
 import kz.odik.crm.Repository.StoreRepository;
 import kz.odik.crm.Repository.UsersRepository;
 import kz.odik.crm.entity.Roles;
-import kz.odik.crm.entity.Store;
 import kz.odik.crm.entity.Users;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ public class UserService {
         Roles role = rolesRepository.findById(dto.getRoleID()).orElseThrow();
 
         return usersRepository.save(Users.builder()
-                .username(dto.getName())
+                .username(dto.getUsername())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .role(role)
                 .build());
@@ -60,10 +59,7 @@ public class UserService {
             Roles role = rolesRepository.findById(dto.getRoleId()).orElseThrow(() -> new RuntimeException("Role not found: " + dto.getRoleId()));
             user.setRole(role);
         }
-        if (dto.getStoreId() != null) {
-            Store store = storeRepository.findById(dto.getStoreId()).orElseThrow(() -> new RuntimeException("Store not found: " + dto.getStoreId()));
-            user.setStore(store);
-        }
+
         return usersRepository.save(user);
     }
 }

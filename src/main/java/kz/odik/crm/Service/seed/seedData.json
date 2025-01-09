@@ -1,0 +1,112 @@
+{
+  "accessRights": [
+    {
+      "name": "CREATE_USER",
+      "description": "Создание сотрудника"
+    },
+    {
+      "name": "UPDATE_USER",
+      "description": "Управление сотрудником"
+    },
+    {
+      "name": "UPDATE_STOREINVETORY_PRODUCTS",
+      "description": "Изменение товаров на складе/магазине"
+    },
+    {
+      "name": "SELL_STOREINVENTORY_PRODUCTS",
+      "description": "Продава товара"
+    },
+    {
+      "name": "CREATE_STOREINVENTORY_PRODUCTS",
+      "description": "Закупка товара"
+    }
+  ],
+  "roles": [
+    {
+      "name": "Гл.Админ",
+      "accessRights": [
+        "CREATE_USER",
+        "UPDATE_USER",
+        "UPDATE_STOREINVETORY_PRODUCTS",
+        "SELL_STOREINVENTORY_PRODUCTS",
+        "CREATE_STOREINVENTORY_PRODUCTS"
+      ]
+    },
+    {
+      "name": "Админ",
+      "accessRights": [
+        "UPDATE_USER",
+        "UPDATE_STOREINVETORY_PRODUCTS",
+        "SELL_STOREINVENTORY_PRODUCTS",
+        "CREATE_STOREINVENTORY_PRODUCTS"
+      ]
+    },
+    {
+      "name": "Менеджер",
+      "accessRights": [
+        "UPDATE_STOREINVETORY_PRODUCTS",
+        "SELL_STOREINVENTORY_PRODUCTS"
+      ]
+    },
+    {
+      "name": "Бухгалтер",
+      "accessRights": [
+        "UPDATE_STOREINVETORY_PRODUCTS"
+      ]
+    },
+    {
+      "name": "ЗавСклада",
+      "accessRights": [
+        "UPDATE_STOREINVETORY_PRODUCTS"
+      ]
+    },
+    {
+      "name": "Охранник",
+      "accessRights": [
+      ]
+    },
+    {
+      "name": "Рабочий",
+      "accessRights": [
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "name": "У Алихана",
+      "place": "Чоканова"
+    },
+    {
+      "name": "У Дамира",
+      "place": "Напанфилова"
+    }
+  ],
+  "users": [
+    {
+      "username": "Alihan",
+      "password": "777",
+      "role": "Гл.Админ",
+      "stores": [
+        "У Алихана",
+        "У Дамира"
+      ]
+    },
+    {
+      "username": "Damir",
+      "password": "1337",
+      "role": "Админ",
+      "stores": [
+        "У Алихана",
+        "У Дамира"
+      ]
+    },
+    {
+      "username": "Adlet",
+      "password": "ka4ki",
+      "role": "Менеджер",
+      "stores": [
+        "У Алихана"
+      ]
+    }
+  ]
+}

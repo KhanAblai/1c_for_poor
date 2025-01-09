@@ -19,7 +19,7 @@ public class ProductInflow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "stores_inventory_id")
+    @JoinColumn(name = "stores_inventory_id", referencedColumnName = "id")
     private StoreInventory storeInventory;
     @NotBlank
     private int wholesale_price;

@@ -27,13 +27,13 @@ public class StoreInventoryController {
         return storeInventoryService.createProductOutflow(id, dto);
     }
 
-    @PreAuthorize("hasAuthority('CREATE_STOREINVENTORY_PRODUCT')")
+    @PreAuthorize("hasAuthority('UPDATE_STOREINVENTORY_PRODUCT')")
     @PostMapping("/update-product/{id}")
     public StoreInventory updateProduct(@PathVariable Long id, @RequestBody StoreInventoryDTO dto) {
         return storeInventoryService.updateProduct(id, dto);
     }
 
-    @PreAuthorize("hasAuthority('UPDATE_STOREINVENTORY_PRODUCT')")
+    @PreAuthorize("hasAuthority('CREATE_STOREINVENTORY_PRODUCT')")
     @PostMapping("/create-product")
     public StoreInventory createProduct(@RequestParam Long userid, @RequestBody StoreInventoryDTO dto) {
         return storeInventoryService.createProductInflow(userid, dto);

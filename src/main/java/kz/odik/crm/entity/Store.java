@@ -1,5 +1,6 @@
 package kz.odik.crm.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,11 @@ public class Store {
     @NotBlank
     private String place;
     @ManyToMany(mappedBy = "stores")
+    @JsonIgnoreProperties("stores")
     private Set<Products> products;
-    @ManyToMany(mappedBy = "store")
-    private Set<Users> user;
+    
+    @ManyToMany(mappedBy = "stores")
+    @JsonIgnoreProperties("stores")
+    private Set<Users> users;
+
 }

@@ -1,5 +1,6 @@
 package kz.odik.crm.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,5 +24,6 @@ public class Products {
     private String name;
     @ManyToMany
     @JoinTable(name = "store_inventory", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "store_id"))
+    @JsonIgnoreProperties("products")
     private Set<Store> stores;
 }
