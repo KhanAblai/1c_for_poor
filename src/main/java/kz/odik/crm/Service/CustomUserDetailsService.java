@@ -30,27 +30,28 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("Loading user by username: " + username);
-        Users user = usersRepository.findByUsername(username).orElseThrow();
-        System.out.println("2323232");
-        Roles role = user.getRole();
-        List<AccessRights> accessRights = roleAccessRightsRepository.findAccessRightsByRole(role);
-        System.out.println("33333");
-        System.out.println(accessRights);
+        try {
+            System.out.println("Loading user by username: " + username);
+            Users user = usersRepository.findByUsername(username).orElseThrow();
+            Roles role = user.getRole();
+            List<AccessRights> accessRights = roleAccessRightsRepository.findAccessRightsByRole(role);
 
-        Collection<? extends GrantedAuthority> authorities = new CopyOnWriteArrayList<>(
-                accessRights.stream().map(AccessRights::getName).map(SimpleGrantedAuthority::new).collect(Collectors.toList())
-        );
-        System.out.println("Authorities: " + authorities);
+            Collection<? extends GrantedAuthority> authorities = new CopyOnWriteArrayList<>(
+                    accessRights.stream().map(AccessRights::getName).map(SimpleGrantedAuthority::new).collect(Collectors.toList())
+            );
+  
+            UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                    user.getUsername(),
+                    user.getPassword(),
+                    authorities
+            );
 
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                authorities
-        );
-
-        System.out.println("UserDetails created: " + userDetails.getUsername() + " with authorities: " + userDetails.getAuthorities());
-        return userDetails;
+            System.out.println("UserDetails created: " + userDetails.getUsername() + " with authorities: " + userDetails.getAuthorities());
+            return userDetails;
+        } catch (Exception e) {
+            System.out.println(e);
+            throw e;
+        }
     }
 
     @Transactional

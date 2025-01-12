@@ -1,15 +1,17 @@
 package kz.odik.crm.DTO;
 
+import kz.odik.crm.entity.AccessRights;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class RolesDTO {
+public class UpdateRoleResponseDTO {
+    private Long id;
     private String name;
-    private int[] access_rights_ids;
-
+    private Set<AccessRights> access_rights_name;
 }
-

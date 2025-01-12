@@ -25,7 +25,14 @@ public class AccessRights {
     @Column(unique = true)
     private String name;
     private String description;
+
     @ManyToMany(mappedBy = "accessRights")
     @JsonIgnoreProperties("accessRights")
     private Set<Roles> roles = new HashSet<>();
+
+    public AccessRights(Long id, String name, String description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+    }
 }

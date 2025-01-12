@@ -22,6 +22,7 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank(message = "Логин не должен быть пустым")
+    @Column(unique = true)
     private String username;
     @NotBlank(message = "Пароль не должен быть пустым")
     private String password;
@@ -34,4 +35,6 @@ public class Users {
             inverseJoinColumns = @JoinColumn(name = "store_id"))
     @JsonIgnoreProperties("users")
     private Set<Store> stores = new HashSet<>();
+
+
 }

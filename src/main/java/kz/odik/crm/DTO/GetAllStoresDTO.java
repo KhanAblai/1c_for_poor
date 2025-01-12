@@ -5,11 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Data
-public class RolesDTO {
+@NoArgsConstructor
+public class GetAllStoresDTO {
+    private Long id;
     private String name;
-    private int[] access_rights_ids;
-
+    private String place;
 }
-

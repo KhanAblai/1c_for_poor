@@ -4,12 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class RolesDTO {
+public class CreateStoreResponseDTO {
     private String name;
-    private int[] access_rights_ids;
-
+    private String place;
 }
-

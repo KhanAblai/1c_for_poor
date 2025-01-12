@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class RolesDTO {
+public class GetAllRolesDTO {
+    private Long id;
     private String name;
-    private int[] access_rights_ids;
-
 }
-

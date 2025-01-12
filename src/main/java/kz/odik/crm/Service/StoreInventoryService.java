@@ -1,6 +1,9 @@
 package kz.odik.crm.Service;
 
+import kz.odik.crm.DTO.CreateStoreInventoryCreateProductDTO;
+import kz.odik.crm.DTO.SellStoreInventoryProductDTO;
 import kz.odik.crm.DTO.StoreInventoryDTO;
+import kz.odik.crm.DTO.UpdateStoreInventoryProductDTO;
 import kz.odik.crm.Repository.*;
 import kz.odik.crm.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +31,7 @@ public class StoreInventoryService {
         return productRepository.findByNameContaining(name);
     }
 
-    public StoreInventory updateProduct(Long storeInventoryId, StoreInventoryDTO dto) {
+    public UpdateStoreInventoryProductDTO updateProduct(Long storeInventoryId, StoreInventoryDTO dto) {
         StoreInventory storeInventory = storeInventoryRepository.findById(storeInventoryId).orElseThrow(() -> new RuntimeException("StoreInventory not found: " + storeInventoryId));
         if (dto.getProduct_name() != null) {
             Products product = productRepository.findByName(dto.getProduct_name()).orElseThrow(() -> new RuntimeException("Product not found:" + dto.getProduct_name()));
@@ -44,15 +47,29 @@ public class StoreInventoryService {
         if (dto.getRetail_price() != null) {
             storeInventory.setRetail_price(Math.toIntExact(dto.getRetail_price()));
         }
-        return storeInventoryRepository.save(storeInventory);
+        storeInventoryRepository.save(storeInventory);
+        UpdateStoreInventoryProductDTO createStoreInventoryCreateProductDTO = new UpdateStoreInventoryProductDTO();
+        createStoreInventoryCreateProductDTO.setProduct_name(storeInventory.getProduct().getName());
+        createStoreInventoryCreateProductDTO.setStore_id(storeInventory.getStore().getId());
+        createStoreInventoryCreateProductDTO.setRetail_price(Long.valueOf(storeInventory.getRetail_price()));
+        createStoreInventoryCreateProductDTO.setQuantity(Long.valueOf(storeInventory.getQuantity()));
+        return createStoreInventoryCreateProductDTO;
     }
 
-    public StoreInventory createProductOutflow(Long userId, StoreInventoryDTO dto) {
+    public SellStoreInventoryProductDTO createProductOutflow(Long userId, StoreInventoryDTO dto) {
         System.out.println("AUTHORIZATION PASSED");
-        Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found:" + userId));
 
-        StoreInventory storeInventory = storeInventoryRepository.findById(dto.getStore_id())
-                .orElseThrow(() -> new RuntimeException("Store not found: " + dto.getStore_id()));
+        Users user = usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        System.out.println("User found: " + user.getUsername());
+
+        Products product = productRepository.findByName(dto.getProduct_name())
+                .orElseThrow(() -> new RuntimeException("Product not found: " + dto.getProduct_name()));
+
+        StoreInventory storeInventory = storeInventoryRepository.findByStoreIdAndProductId(dto.getStore_id(), product.getId())
+                .orElseThrow(() -> new RuntimeException("Store not found with store_id: " + dto.getStore_id() + " and product_id: " + product.getId()));
+
+        System.out.println("StoreInventory found: " + storeInventory.getProduct().getName());
 
         int currentQuantity = storeInventory.getQuantity();
         Long quantityToReduce = dto.getQuantity();
@@ -66,18 +83,24 @@ public class StoreInventoryService {
         outflow.setStoreInventory(storeInventory);
         outflow.setQuantity(Math.toIntExact(quantityToReduce));
 
-
         storeInventoryRepository.save(storeInventory);
         productOutflowRepository.save(outflow);
 
-        return storeInventory;
+        SellStoreInventoryProductDTO createStoreInventoryCreateProductDTO = new SellStoreInventoryProductDTO();
+        createStoreInventoryCreateProductDTO.setProduct_name(storeInventory.getProduct().getName());
+        createStoreInventoryCreateProductDTO.setStore_id(storeInventory.getStore().getId());
+        createStoreInventoryCreateProductDTO.setRetail_price(Long.valueOf(storeInventory.getRetail_price()));
+        createStoreInventoryCreateProductDTO.setQuantity(Long.valueOf(storeInventory.getQuantity()));
+
+        return createStoreInventoryCreateProductDTO;
     }
 
 
-    public StoreInventory createProductInflow(Long userId, StoreInventoryDTO dto) {
+    public CreateStoreInventoryCreateProductDTO createProductInflow(Long userId, StoreInventoryDTO dto) {
+        System.out.println("222");
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-
+        System.out.println(user.getUsername());
         StoreInventory storeInventory = storeInventoryRepository.findById(dto.getStore_id())
                 .orElseGet(() -> {
                     StoreInventory newInventory = new StoreInventory();
@@ -108,8 +131,12 @@ public class StoreInventoryService {
 
         storeInventoryRepository.save(storeInventory);
         productInflowRepository.save(inflow);
-
-        return storeInventory;
+        CreateStoreInventoryCreateProductDTO createStoreInventoryCreateProductDTO = new CreateStoreInventoryCreateProductDTO();
+        createStoreInventoryCreateProductDTO.setProduct_name(storeInventory.getProduct().getName());
+        createStoreInventoryCreateProductDTO.setStore_id(storeInventory.getStore().getId());
+        createStoreInventoryCreateProductDTO.setRetail_price(Long.valueOf(storeInventory.getRetail_price()));
+        createStoreInventoryCreateProductDTO.setQuantity(Long.valueOf(storeInventory.getQuantity()));
+        return createStoreInventoryCreateProductDTO;
     }
 
 

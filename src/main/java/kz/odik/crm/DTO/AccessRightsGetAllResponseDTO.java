@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class RolesDTO {
+public class AccessRightsGetAllResponseDTO {
+    private Long id;
     private String name;
-    private int[] access_rights_ids;
-
+    private String description;
 }
-

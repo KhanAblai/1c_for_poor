@@ -1,10 +1,8 @@
 package kz.odik.crm.controller;
 
-import kz.odik.crm.DTO.UpdateUserDto;
-import kz.odik.crm.DTO.UserDTO;
+import kz.odik.crm.DTO.*;
 import kz.odik.crm.Repository.UsersRepository;
 import kz.odik.crm.Service.UserService;
-import kz.odik.crm.entity.Users;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,23 +18,33 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('CREATE_USER')")
     @PostMapping("/create")
-    public Users createUser(@RequestBody UserDTO dto) {
+    public CreateUsersResponseDTO createUser(@RequestBody UserDTO dto) {
+        System.out.println(dto.getUsername());
+        System.out.println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         return userService.create(dto);
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_USER') or hasAuthority('CREATE_USER')")
     @GetMapping("/all")
-    public List<Users> getAllUsers() {
+    public List<UserGetAllResponseDTO> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/by-role")
-    public List<Users> getUsersByRole(@RequestParam Long roleId) {
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
+    @PostMapping("/delete/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUserById(id);
+    }
+
+    @PreAuthorize("hasAuthority('UPDATE_USER') or hasAuthority('CREATE_USER')")
+    @GetMapping("/by-role/{id}")
+    public List<UserGetAllResponseDTO> getUsersByRole(@PathVariable("id") Long roleId) {
         return userService.getAllUsersByRole(roleId);
     }
 
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @PostMapping("/update/{id}")
-    public Users updateUser(@PathVariable Long id, @RequestBody UpdateUserDto dto) {
+    public UpdateUserResponseDTO updateUser(@PathVariable Long id, @RequestBody UpdateUserDto dto) {
         return userService.updateUser(id, dto);
     }
 }

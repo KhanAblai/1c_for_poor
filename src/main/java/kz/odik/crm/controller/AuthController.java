@@ -7,7 +7,6 @@ import kz.odik.crm.Repository.RolesRepository;
 import kz.odik.crm.Repository.UsersRepository;
 import kz.odik.crm.Security.JwtTokenProvider;
 import kz.odik.crm.entity.AccessRights;
-import kz.odik.crm.entity.Roles;
 import kz.odik.crm.entity.Users;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -41,26 +40,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody AuthDTO authRequest) {
         try {
-            Users users = usersRepository.findByUsername(authRequest.getUsername()).orElseThrow();
-            System.out.println("2323232");
-            Roles roles = users.getRole();
-            List<AccessRights> accessRightsid = roleAccessRightsRepository.findAccessRightsByRole(roles);
-            System.out.println("33333");
-            System.out.println(accessRightsid);
-//            Roles role = rolesRepository.findById(1L).orElseThrow();
-//            System.out.println("ZZZZZZZZZZZZZZZZZZZZZZZZZZ");
-//            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAA");
-//            System.out.println(role.getAccessRights());
-//            System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWW");
-//            synchronized (this) {
-//                Users user = usersRepository.findByUsername(authRequest.getUsername()).orElseThrow();
-//                System.out.println("Create user " + user.getUsername());
-//                Roles role = user.getRole();
-//                role.getName();
-//                System.out.println(role.getAccessRights().size());
-//
-//                System.out.println("Attempting to authenticate user: " + authRequest.getUsername());
-//            }
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
             );
@@ -75,7 +54,6 @@ public class AuthController {
 
         } catch (Exception e) {
             System.out.println("Authentication failed: " + e);
-            e.printStackTrace();  // This will print the full stack trace to the logs
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }

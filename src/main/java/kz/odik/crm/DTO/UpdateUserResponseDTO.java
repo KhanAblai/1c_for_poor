@@ -4,12 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
+public class UpdateUserResponseDTO {
     private String username;
-    private String password;
-    private Long roleID;
-    private Long storeID;
+    private String roleName;
+    private List<String> storeNames;
 }
