@@ -11,8 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface ProductsRepository extends JpaRepository<Products, Long> {
-    @Query("SELECT p FROM Products p WHERE p.name LIKE %:name%")
-    List<Products> findByNameContaining(@Param("name") String name);
+    @Query("SELECT p FROM Products p JOIN p.stores s WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')) AND s.id = :storeId")
+    List<Products> findByNameAndStoreId(@Param("name") String name, @Param("storeId") Long storeId);
+
 
     Optional<Products> findByName(String name);
 }

@@ -1,18 +1,15 @@
 package kz.odik.crm.Service;
 
+import jakarta.transaction.Transactional;
 import kz.odik.crm.DTO.*;
-import kz.odik.crm.Repository.RolesRepository;
-import kz.odik.crm.Repository.StoreRepository;
-import kz.odik.crm.Repository.UsersRepository;
-import kz.odik.crm.Repository.UsersStoresRepository;
-import kz.odik.crm.entity.Roles;
-import kz.odik.crm.entity.Store;
-import kz.odik.crm.entity.Users;
-import kz.odik.crm.entity.UsersStores;
+import kz.odik.crm.Repository.*;
+import kz.odik.crm.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +27,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UsersStoresRepository usersStoresRepository;
+    @Autowired
+    private UserActivityRepository userActivityRepository;
 
     public UserService(RolesRepository rolesRepository, UsersRepository usersRepository, PasswordEncoder passwordEncoder) {
         this.rolesRepository = rolesRepository;
@@ -41,40 +40,100 @@ public class UserService {
         if (dto.getRoleID() == null) {
             throw new IllegalArgumentException("Role ID must not be null");
         }
+
         System.out.println("Нхауй");
         Roles role = rolesRepository.findById(dto.getRoleID()).orElseThrow(() -> new RuntimeException("Role not found with ID: " + dto.getRoleID()));
+
         Users user = new Users();
         System.out.println("Нхауй");
         user.setUsername(dto.getUsername());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(role);
         System.out.println("Нхауй");
-        Store store = storeRepository.findById(dto.getStoreID()).orElseThrow();
-        System.out.println("Н");
-        UsersStores usersStores = new UsersStores();
-        usersStores.setUser(user);
-        usersStores.setStore(store);
+
+        // Сохраняем пользователя перед тем, как создавать UsersStores
         usersRepository.save(user);
-        usersStoresRepository.save(usersStores);
+
+        Long[] stores = dto.getStores();
+        System.out.println(dto);
+        List<UsersStores> newUsersStores = new ArrayList<>();
+
+        for (Long store_id : stores) {
+            Store store = new Store();
+            store.setId(store_id);
+            UsersStores usersStores = new UsersStores();
+            usersStores.setStore(store);
+            usersStores.setUser(user);
+            newUsersStores.add(usersStores);
+        }
+
+        // Сохраняем UsersStores после сохранения пользователя
+        usersStoresRepository.saveAll(newUsersStores);
+
+        System.out.println(newUsersStores);
+        System.out.println("Н");
         System.out.println(user.getUsername());
+
         CreateUsersResponseDTO createUsersResponseDTO = new CreateUsersResponseDTO();
         createUsersResponseDTO.setId(user.getId());
         createUsersResponseDTO.setRole(user.getRole().getName());
         createUsersResponseDTO.setUsername(user.getUsername());
+
         System.out.println("Нхауй");
+
         List<String> storeNamesList = new ArrayList<>();
         for (Store s : user.getStores()) {
             storeNamesList.add(s.getName());
         }
+
         // Преобразуем список в массив строк
         String[] storeNames = storeNamesList.toArray(new String[0]);
         System.out.println("ЗАхуй");
         createUsersResponseDTO.setStores(storeNames);
+
         return createUsersResponseDTO;
     }
 
     public void deleteUserById(Long id) {
         usersRepository.deleteById(id);
+    }
+
+
+    @Transactional
+    public void checkIn(Principal principal) {
+        // Проверяем, есть ли активная запись (где checkOut = false)
+        Users user = usersRepository.findByUsername(principal.getName()).orElseThrow();
+        Optional<UserActivity> activeActivity = userActivityRepository
+                .findFirstByUserIdAndCheckOutFalseOrderByCheckedInDateDesc(user.getId());
+
+
+        if (activeActivity.isPresent()) {
+            throw new IllegalStateException("User is already checked in.");
+        }
+
+        // Создаем новую запись
+        UserActivity userActivity = new UserActivity();
+        userActivity.setUserId(user.getId());
+        userActivity.setCheckedInDate(LocalDateTime.now());
+        userActivity.setCheckOut(false); // Пользователь закреплен
+        userActivityRepository.save(userActivity);
+    }
+
+    @Transactional
+    public void checkOut(Principal principal) {
+        Users user = usersRepository.findByUsername(principal.getName()).orElseThrow();
+        // Находим последнюю активность пользователя, где checkOut = false
+        Optional<UserActivity> activeActivity = userActivityRepository
+                .findFirstByUserIdAndCheckOutFalseOrderByCheckedInDateDesc(user.getId());
+
+        if (activeActivity.isPresent()) {
+            UserActivity userActivity = activeActivity.get();
+            userActivity.setCheckedOutDate(LocalDateTime.now());
+            userActivity.setCheckOut(true); // Пользователь откреплен
+            userActivityRepository.save(userActivity);
+        } else {
+            throw new IllegalStateException("No active check-in found for the user.");
+        }
     }
 
     public List<UserGetAllResponseDTO> getAllUsers() {
@@ -101,9 +160,12 @@ public class UserService {
         return userGetAllResponseDTOS;
     }
 
+    @Transactional
     public UpdateUserResponseDTO updateUser(Long userId, UpdateUserDto dto) {
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        System.out.println(user.getUsername());
+        System.out.println(dto);
         if (dto.getName() != null) {
             user.setUsername(dto.getName());
         }
@@ -113,29 +175,24 @@ public class UserService {
         if (dto.getRoleId() != null) {
             Roles role = rolesRepository.findById(dto.getRoleId()).orElseThrow();
             user.setRole(role);
+            System.out.println("НАЖЛАСЬ РОЛЬ " + role.getId());
         }
-
-        if (dto.getStoreId() != null) {
-            List<Store> usersStores = usersStoresRepository.findStoresByUserId(user.getId());
-
-            // Если список usersStores пуст, добавляем магазин и сохраняем пользователя
-            if (usersStores.isEmpty()) {
-                Store store = storeRepository.findById(dto.getStoreId()).orElseThrow(() -> new RuntimeException("Not found"));
-                user.getStores().add(store);
-                usersRepository.save(user);
+        if (dto.getStores() != null) {
+            Long[] stores = dto.getStores();
+            usersStoresRepository.deleteByUserId(userId);
+            List<UsersStores> newUsersStores = new ArrayList<>();
+            for (Long store_id : stores) {
+                Store store = new Store();
+                store.setId(store_id);
+                UsersStores usersStores = new UsersStores();
+                usersStores.setStore(store);
+                usersStores.setUser(user);
+                newUsersStores.add(usersStores);
             }
-
-            // Если список не пуст, добавляем магазин в существующий список
-            System.out.println("UserStoresfound" + usersStores.get(0).getName());
-            Store store = storeRepository.findById(dto.getStoreId()).orElseThrow(() -> new RuntimeException("Store not found"));
-            System.out.println(store.getName());
-            System.out.println("Зашло");
-            UsersStores userstore = new UsersStores();
-            userstore.setUser(user);
-            userstore.setStore(store);
-            usersStoresRepository.save(userstore);
-            System.out.println("Вышло");
+            usersStoresRepository.saveAll(newUsersStores);
         }
+
+
         System.out.println("ЗАхуй");
         usersRepository.save(user);
         System.out.println("ЗАхуй");

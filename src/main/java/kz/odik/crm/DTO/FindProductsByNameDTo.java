@@ -5,11 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class UpdateUserDto {
+@NoArgsConstructor
+public class FindProductsByNameDTo {
+    private Long id;
     private String name;
-    private String password;
-    private Long roleId;
-    private Long[] stores;
 }

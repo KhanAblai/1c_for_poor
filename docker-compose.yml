@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: odikdamix321123
+      POSTGRES_DB: abc4
+    ports:
+      - "5432:5432"
+    volumes:
+      - crm2_db_data:/var/lib/postgresql/data
+    networks:
+      - my_network
+
+  java-app:
+    image: my-java-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/abc4
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: odikdamix321123
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ./src/main/java/kz/odik/crm/Service/seed/seedData.json
+        target: /app/src/main/java/kz/odik/crm/Service/seed/seedData.json
+    networks:
+      - my_network
+
+  ts-app:
+    image: my-ts-app
+    depends_on:
+      - java-app
+      - db
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../telegraf-bot-wizard:/telegraf-bot-wizard
+
+    networks:
+      - my_network
+
+volumes:
+  crm2_db_data:
+
+networks:
+  my_network:

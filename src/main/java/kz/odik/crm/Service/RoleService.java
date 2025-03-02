@@ -81,7 +81,9 @@ public class RoleService {
         for (Roles role : roles) {
             GetAllRolesDTO roleDTO = new GetAllRolesDTO(role.getId(), role.getName());
             roleDTOs.add(roleDTO);
+            System.out.println(role.getName());
         }
+
         return roleDTOs;
     }
 

@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -24,9 +25,9 @@ public class StoreContoller {
         return storeService.getAllStores();
     }
 
-    @GetMapping("/all-by-user/{id}")
-    public List<GetAllStoresDTO> getAllStoresByUser(@PathVariable("id") Long userId) {
-        return storeService.getAllStoresToUser(userId);
+    @GetMapping("/all-by-user")
+    public List<GetAllStoresDTO> getAllStoresByUser(Principal principal) {
+        return storeService.getAllStoresToUser(principal);
     }
 
     @PreAuthorize("hasAuthority('CREATE_STORE')")

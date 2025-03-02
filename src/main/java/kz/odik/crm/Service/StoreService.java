@@ -5,13 +5,17 @@ import kz.odik.crm.DTO.CreateStoreResponseDTO;
 import kz.odik.crm.DTO.GetAllStoresDTO;
 import kz.odik.crm.DTO.StoreDTO;
 import kz.odik.crm.Repository.StoreRepository;
+import kz.odik.crm.Repository.UsersRepository;
 import kz.odik.crm.Repository.UsersStoresRepository;
 import kz.odik.crm.entity.Store;
+import kz.odik.crm.entity.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StoreService {
@@ -19,6 +23,8 @@ public class StoreService {
     private StoreRepository storeRepository;
     @Autowired
     private UsersStoresRepository usersStoresRepository;
+    @Autowired
+    private UsersRepository usersRepository;
 
     public List<GetAllStoresDTO> getAllStores() {
         List<Store> stores = storeRepository.findAll();
@@ -29,8 +35,9 @@ public class StoreService {
         return storesDTOS;
     }
 
-    public List<GetAllStoresDTO> getAllStoresToUser(Long userId) {
-        List<Store> stores = storeRepository.findAllStoresByUserId(userId);
+    public List<GetAllStoresDTO> getAllStoresToUser(Principal principal) {
+        Optional<Users> user = usersRepository.findByUsername(principal.getName());
+        List<Store> stores = storeRepository.findAllStoresByUserId(user.get().getId());
         List<GetAllStoresDTO> storesDTOS = new ArrayList<>();
         for (Store store : stores) {
             storesDTOS.add(new GetAllStoresDTO(store.getId(), store.getName(), store.getPlace()));
