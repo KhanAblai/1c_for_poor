@@ -26,9 +26,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - type: bind
-        source: ./src/main/java/kz/odik/crm/Service/seed/seedData.json
-        target: /app/src/main/java/kz/odik/crm/Service/seed/seedData.json
+      - ./src/main/java/kz/odik/crm/Service/seed/seedData.json:/app/src/main/java/kz/odik/crm/Service/seed/seedData.json
     networks:
       - my_network
 
