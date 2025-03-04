@@ -41,7 +41,6 @@ services:
       - "3000:3000"
     volumes:
       - ../telegraf-bot-wizard:/telegraf-bot-wizard
-
     networks:
       - my_network
 
@@ -50,3 +49,4 @@ volumes:
 
 networks:
   my_network:
+    driver: bridge
